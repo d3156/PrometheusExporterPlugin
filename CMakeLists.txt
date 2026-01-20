@@ -26,6 +26,9 @@ set_target_properties(PrometheusExporterPlugin PROPERTIES
   OUTPUT_NAME "PrometheusExporterPlugin"
 )
 
+find_package(PluginCore REQUIRED)
+target_link_libraries(PrometheusExporterPlugin PRIVATE d3156::PluginCore)
+
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../EasyHttpLib/CMakeLists.txt")
     message(STATUS "EasyHttpLib not found, downloading...")
     
@@ -63,7 +66,7 @@ target_link_libraries(PrometheusExporterPlugin PRIVATE MetricsModel)
 find_package(OpenSSL REQUIRED)
 find_package(Boost 1.75 REQUIRED COMPONENTS system thread)
 
-set(OPENSSL_USE_STATIC_LIBS TRUE)
+# set(OPENSSL_USE_STATIC_LIBS TRUE)
 
 target_include_directories(PrometheusExporterPlugin PRIVATE
   ${Boost_INCLUDE_DIRS}
