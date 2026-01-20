@@ -2,7 +2,10 @@
 #include <boost/json.hpp>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <string>
+
+
 
 void PrometheusExporter::registerArgs(d3156::Args::Builder &bldr)
 {
@@ -25,17 +28,22 @@ void PrometheusExporter::upload(std::set<Metrics::Metric *> &statistics)
         data += "} " + std::to_string(metric->value_) + "\n";
         metrics_cache += data;
     }
+    if (pusher)
+        pusher->send("/metrics/job/"+job , metrics_cache);
 }
 
 void PrometheusExporter::postInit() {
     if (mode == "pull")
     {
-        
+        puller = std::make_unique<d3156::EasyWebServer>(*io, pull_port);
         return;
     }
     if (mode == "push")
     {
-        
+        pusher= std::make_unique<d3156::EasyHttpClient>(*io, push_gateway_url);
+        puller->addPath("/metrics", [this](const d3156::http::request<d3156::http::string_body>& req, const d3156::address& client_ip) {
+            return std::make_pair(true, metrics_cache);
+        });
         return;
     }
     std::cout << R_Prometheus << " unknown Prometheus mode " << mode << "\n";

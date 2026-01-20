@@ -4,6 +4,11 @@
 
 #include <MetricsModel.hpp>
 #include <MetricUploader.hpp>
+
+#include <EasyHttpClient.hpp>
+#include <EasyWebServer.hpp>
+
+#include <memory>
 #include <string>
 
 #define Y_Prometheus "\033[33m[PrometheusExporter]\033[0m "
@@ -19,6 +24,9 @@ class PrometheusExporter final : public d3156::PluginCore::IPlugin, public Metri
     std::string push_gateway_url = "http://pushgateway:9091";
     std::string job              = "MainJob";
     std::string metrics_cache    = "";
+
+    std::unique_ptr<d3156::EasyHttpClient> pusher;
+    std::unique_ptr<d3156::EasyWebServer> puller;
 
 public:
     void registerArgs(d3156::Args::Builder &bldr) override;

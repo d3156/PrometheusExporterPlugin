@@ -26,6 +26,23 @@ set_target_properties(PrometheusExporterPlugin PROPERTIES
   OUTPUT_NAME "PrometheusExporterPlugin"
 )
 
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../EasyHttpLib/CMakeLists.txt")
+    message(STATUS "EasyHttpLib not found, downloading...")
+    
+    include(FetchContent)
+    FetchContent_Declare(
+        EasyHttpLib
+        GIT_REPOSITORY https://github.com/d3156/EasyHttpLib.git
+        GIT_TAG master  # или конкретный тег/коммит
+    )
+    FetchContent_MakeAvailable(EasyHttpLib)
+else()
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../EasyHttpLib" 
+                     "${CMAKE_BINARY_DIR}/_deps/EasyHttpLib")
+endif()
+
+target_link_libraries(PrometheusExporterPlugin PRIVATE EasyHttpLib)
+
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../MetricsModel/CMakeLists.txt")
     message(STATUS "MetricsModel not found, downloading...")
     
@@ -44,7 +61,7 @@ endif()
 target_link_libraries(PrometheusExporterPlugin PRIVATE MetricsModel)
 
 find_package(OpenSSL REQUIRED)
-find_package(Boost 1.75 REQUIRED COMPONENTS system thread json)
+find_package(Boost 1.75 REQUIRED COMPONENTS system thread)
 
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 
@@ -55,7 +72,4 @@ target_include_directories(PrometheusExporterPlugin PRIVATE
 target_link_libraries(PrometheusExporterPlugin PRIVATE
   Boost::system
   Boost::thread
-  Boost::json
-  OpenSSL::SSL
-  OpenSSL::Crypto
 )
