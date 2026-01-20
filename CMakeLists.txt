@@ -26,15 +26,27 @@ set_target_properties(PrometheusExporterPlugin PROPERTIES
   OUTPUT_NAME "PrometheusExporterPlugin"
 )
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../MetricsModel" "${CMAKE_CURRENT_BINARY_DIR}/_deps/MetricsModel")
-target_link_libraries(PrometheusExporterPlugin PRIVATE MetricsModel)
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../MetricsModel/CMakeLists.txt")
+    message(STATUS "MetricsModel not found, downloading...")
+    
+    include(FetchContent)
+    FetchContent_Declare(
+        MetricsModel
+        GIT_REPOSITORY https://github.com/d3156/MetricsModel.git
+        GIT_TAG master  # или конкретный тег/коммит
+    )
+    FetchContent_MakeAvailable(MetricsModel)
+else()
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../MetricsModel" 
+                     "${CMAKE_BINARY_DIR}/_deps/MetricsModel")
+endif()
 
-set(Boost_USE_STATIC_LIBS ON)
-set(OPENSSL_USE_STATIC_LIBS TRUE)
-set(BUILD_SHARED_LIBS OFF)
+target_link_libraries(PrometheusExporterPlugin PRIVATE MetricsModel)
 
 find_package(OpenSSL REQUIRED)
 find_package(Boost 1.75 REQUIRED COMPONENTS system thread json)
+
+set(OPENSSL_USE_STATIC_LIBS TRUE)
 
 target_include_directories(PrometheusExporterPlugin PRIVATE
   ${Boost_INCLUDE_DIRS}
@@ -47,5 +59,3 @@ target_link_libraries(PrometheusExporterPlugin PRIVATE
   OpenSSL::SSL
   OpenSSL::Crypto
 )
-
-set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
