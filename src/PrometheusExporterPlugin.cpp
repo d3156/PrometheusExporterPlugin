@@ -1,4 +1,5 @@
 #include "PrometheusExporterPlugin.hpp"
+#include "Metrics.hpp"
 #include <boost/json.hpp>
 #include <filesystem>
 #include <fstream>
@@ -7,7 +8,8 @@
 
 void PrometheusExporter::registerArgs(d3156::Args::Builder &bldr)
 {
-    bldr.setVersion("PrometheusExporter " + std::string(PROMETHEUS_EXPORTER_VERSION)).addOption(configPath, "PrometheusPath", "path to config for PrometheusExporter.json");
+    bldr.setVersion("PrometheusExporter " + std::string(PROMETHEUS_EXPORTER_VERSION))
+        .addOption(configPath, "PrometheusPath", "path to config for PrometheusExporter.json");
 }
 
 void PrometheusExporter::registerModels(d3156::PluginCore::ModelsStorage &models)
@@ -33,14 +35,16 @@ void PrometheusExporter::postInit()
 {
     if (mode == "pull") {
         puller = std::make_unique<d3156::EasyWebServer>(*io, pull_port);
-        std::cout << G_Prometheus << "run " << mode <<" mode\n";
+        puller->addPath("/metrics", [this](const d3156::http::request<d3156::http::string_body> &req,
+                                           const d3156::address &client_ip) {
+            std::cout << W_Prometheus << "Recved req" << req;
+            return std::make_pair(true, metrics_cache);
+        });
+        std::cout << G_Prometheus << "run " << mode << " mode\n";
         return;
     }
     if (mode == "push") {
         pusher = std::make_unique<d3156::EasyHttpClient>(*io, push_gateway_url);
-        puller->addPath("/metrics",
-                        [this](const d3156::http::request<d3156::http::string_body> &req,
-                               const d3156::address &client_ip) { return std::make_pair(true, metrics_cache); });
         std::cout << G_Prometheus << "run " << mode << " mode\n";
         return;
     }
@@ -70,6 +74,4 @@ void PrometheusExporter::parseSettings()
     job              = json::value_to<std::string>(obj.at("job"));
 }
 
-PrometheusExporter::~PrometheusExporter() {
-    MetricsModel::instance()->unregisterUploader(this); 
-}
+PrometheusExporter::~PrometheusExporter() { MetricsModel::instance()->unregisterUploader(this); }

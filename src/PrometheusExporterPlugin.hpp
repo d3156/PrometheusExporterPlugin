@@ -1,4 +1,5 @@
 #pragma once
+#include "Metrics.hpp"
 #include <PluginCore/IPlugin.hpp>
 #include <PluginCore/IModel.hpp>
 
