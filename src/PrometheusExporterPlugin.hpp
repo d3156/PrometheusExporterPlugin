@@ -39,4 +39,6 @@ public:
 
 private:
     void parseSettings();
+
+    virtual ~PrometheusExporter();
 };

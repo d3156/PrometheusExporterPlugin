@@ -5,8 +5,6 @@
 #include <memory>
 #include <string>
 
-
-
 void PrometheusExporter::registerArgs(d3156::Args::Builder &bldr)
 {
     bldr.addOption(configPath, "PrometheusPath", "path to config for PrometheusExporter.json");
@@ -28,22 +26,20 @@ void PrometheusExporter::upload(std::set<Metrics::Metric *> &statistics)
         data += "} " + std::to_string(metric->value_) + "\n";
         metrics_cache += data;
     }
-    if (pusher)
-        pusher->send("/metrics/job/"+job , metrics_cache);
+    if (pusher) pusher->send("/metrics/job/" + job, metrics_cache);
 }
 
-void PrometheusExporter::postInit() {
-    if (mode == "pull")
-    {
+void PrometheusExporter::postInit()
+{
+    if (mode == "pull") {
         puller = std::make_unique<d3156::EasyWebServer>(*io, pull_port);
         return;
     }
-    if (mode == "push")
-    {
-        pusher= std::make_unique<d3156::EasyHttpClient>(*io, push_gateway_url);
-        puller->addPath("/metrics", [this](const d3156::http::request<d3156::http::string_body>& req, const d3156::address& client_ip) {
-            return std::make_pair(true, metrics_cache);
-        });
+    if (mode == "push") {
+        pusher = std::make_unique<d3156::EasyHttpClient>(*io, push_gateway_url);
+        puller->addPath("/metrics",
+                        [this](const d3156::http::request<d3156::http::string_body> &req,
+                               const d3156::address &client_ip) { return std::make_pair(true, metrics_cache); });
         return;
     }
     std::cout << R_Prometheus << " unknown Prometheus mode " << mode << "\n";
@@ -59,10 +55,10 @@ namespace json = boost::json;
 void PrometheusExporter::parseSettings()
 {
     if (!std::filesystem::exists(configPath)) {
-        std::cout << R_Prometheus << " Error, file ./status/Page.html not found!!!\n";
+        std::cout << R_Prometheus << " Error, file " << configPath << " not found!!!\n";
         return;
     }
-    auto json_text          = (std::ostringstream() << std::ifstream("./status/Page.html").rdbuf()).str();
+    auto json_text          = (std::ostringstream() << std::ifstream(configPath).rdbuf()).str();
     json::value jv          = json::parse(json_text);
     json::object const &obj = jv.as_object();
 
@@ -71,3 +67,5 @@ void PrometheusExporter::parseSettings()
     push_gateway_url = json::value_to<std::string>(obj.at("push_gateway_url"));
     job              = json::value_to<std::string>(obj.at("job"));
 }
+
+PrometheusExporter::~PrometheusExporter() { MetricsModel::instance()->unregisterUploader(this); }
