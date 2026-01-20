@@ -7,7 +7,7 @@
 
 void PrometheusExporter::registerArgs(d3156::Args::Builder &bldr)
 {
-    bldr.addOption(configPath, "PrometheusPath", "path to config for PrometheusExporter.json");
+    bldr.setVersion("PrometheusExporter " + std::string(PROMETHEUS_EXPORTER_VERSION)).addOption(configPath, "PrometheusPath", "path to config for PrometheusExporter.json");
 }
 
 void PrometheusExporter::registerModels(d3156::PluginCore::ModelsStorage &models)
@@ -33,6 +33,7 @@ void PrometheusExporter::postInit()
 {
     if (mode == "pull") {
         puller = std::make_unique<d3156::EasyWebServer>(*io, pull_port);
+        std::cout << G_Prometheus << "run " << mode <<" mode\n";
         return;
     }
     if (mode == "push") {
@@ -40,6 +41,7 @@ void PrometheusExporter::postInit()
         puller->addPath("/metrics",
                         [this](const d3156::http::request<d3156::http::string_body> &req,
                                const d3156::address &client_ip) { return std::make_pair(true, metrics_cache); });
+        std::cout << G_Prometheus << "run " << mode << " mode\n";
         return;
     }
     std::cout << R_Prometheus << " unknown Prometheus mode " << mode << "\n";
@@ -68,4 +70,6 @@ void PrometheusExporter::parseSettings()
     job              = json::value_to<std::string>(obj.at("job"));
 }
 
-PrometheusExporter::~PrometheusExporter() { MetricsModel::instance()->unregisterUploader(this); }
+PrometheusExporter::~PrometheusExporter() {
+    MetricsModel::instance()->unregisterUploader(this); 
+}
