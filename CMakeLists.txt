@@ -64,9 +64,9 @@ endif()
 target_link_libraries(PrometheusExporterPlugin PRIVATE MetricsModel)
 
 find_package(OpenSSL REQUIRED)
-find_package(Boost 1.75 REQUIRED COMPONENTS system thread)
+find_package(Boost 1.75 REQUIRED COMPONENTS system thread json)
 
-# set(OPENSSL_USE_STATIC_LIBS TRUE)
+set(OPENSSL_USE_STATIC_LIBS TRUE)
 
 target_include_directories(PrometheusExporterPlugin PRIVATE
   ${Boost_INCLUDE_DIRS}
@@ -75,4 +75,5 @@ target_include_directories(PrometheusExporterPlugin PRIVATE
 target_link_libraries(PrometheusExporterPlugin PRIVATE
   Boost::system
   Boost::thread
+  Boost::json
 )
