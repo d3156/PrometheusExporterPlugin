@@ -24,8 +24,10 @@ void PrometheusExporter::upload(std::set<Metrics::Metric *> &statistics)
     metrics_cache = "";
     for (auto metric : statistics) {
         std::string data = metric->name + "{";
-        for (int i = 0; i < metric->tags.size(); ++i)
-            data += "," + metric->tags[i].first + "=\"" + metric->tags[i].second + "\"";
+        for (int i = 0; i < metric->tags.size(); ++i) {
+            if (i != 0) data += ",";
+            data += metric->tags[i].first + "=\"" + metric->tags[i].second + "\"";
+        }
         data += "} " + std::to_string(metric->value_) + "\n";
         metrics_cache += data;
     }
