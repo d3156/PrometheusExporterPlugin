@@ -36,12 +36,11 @@ void PrometheusExporter::postInit()
 {
     if (mode == "pull") {
         puller = std::make_unique<d3156::EasyWebServer>(*io, pull_port);
-        puller->addPath("/metrics", [this](const d3156::http::request<d3156::http::string_body> &req,
-                                           const d3156::address &client_ip) {
-            std::cout << W_Prometheus << "Recved req" << req;
-            return std::make_pair(true, metrics_cache);
-        });
+        puller->addPath("/metrics",
+                        [this](const d3156::http::request<d3156::http::string_body> &req,
+                               const d3156::address &client_ip) { return std::make_pair(true, metrics_cache); });
         std::cout << G_Prometheus << "run " << mode << " mode\n";
+        std::cout << G_Prometheus << "run EasyWebServer on http://127.0.0.1:" << pull_port << "/metrics\n";
         return;
     }
     if (mode == "push") {
