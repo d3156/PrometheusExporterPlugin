@@ -69,7 +69,7 @@ endif()
 target_link_libraries(PrometheusExporterPlugin PRIVATE MetricsModel)
 
 find_package(OpenSSL REQUIRED)
-find_package(Boost 1.75 REQUIRED COMPONENTS system thread json)
+find_package(Boost 1.8 REQUIRED COMPONENTS system thread json)
 
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 

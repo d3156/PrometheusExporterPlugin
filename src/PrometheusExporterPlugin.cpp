@@ -1,8 +1,8 @@
 #include "PrometheusExporterPlugin.hpp"
 #include "Metrics.hpp"
-#include <boost/json.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <filesystem>
-#include <fstream>
 #include <memory>
 #include <string>
 
@@ -16,6 +16,7 @@ void PrometheusExporter::registerModels(d3156::PluginCore::ModelsStorage &models
 {
     MetricsModel::instance() = RegisterModel("MetricsModel", new MetricsModel(), MetricsModel);
     MetricsModel::instance()->registerUploader(this);
+    parseSettings();
 }
 
 void PrometheusExporter::upload(std::set<Metrics::Metric *> &statistics)
@@ -56,22 +57,38 @@ extern "C" d3156::PluginCore::IPlugin *create_plugin() { return new PrometheusEx
 
 extern "C" void destroy_plugin(d3156::PluginCore::IPlugin *p) { delete p; }
 
-namespace json = boost::json;
+using boost::property_tree::ptree;
+namespace fs = std::filesystem;
 
 void PrometheusExporter::parseSettings()
 {
-    if (!std::filesystem::exists(configPath)) {
-        std::cout << R_Prometheus << " Error, file " << configPath << " not found!!!\n";
+    if (!fs::exists(configPath)) {
+        std::cout << Y_Prometheus << " Config file " << configPath << " not found. Creating default config...\n";
+
+        fs::create_directories(fs::path(configPath).parent_path());
+
+        ptree pt;
+        pt.put("mode", mode);
+        pt.put("pull_port", pull_port);
+        pt.put("push_gateway_url", push_gateway_url);
+        pt.put("job", job);
+
+        boost::property_tree::write_json(configPath, pt);
+
+        std::cout << G_Prometheus << " Default config created at " << configPath << "\n";
         return;
     }
-    auto json_text          = (std::ostringstream() << std::ifstream(configPath).rdbuf()).str();
-    json::value jv          = json::parse(json_text);
-    json::object const &obj = jv.as_object();
+    try {
+        ptree pt;
+        read_json(configPath, pt);
 
-    mode             = json::value_to<std::string>(obj.at("mode"));
-    pull_port        = json::value_to<std::uint16_t>(obj.at("pull_port"));
-    push_gateway_url = json::value_to<std::string>(obj.at("push_gateway_url"));
-    job              = json::value_to<std::string>(obj.at("job"));
+        mode             = pt.get<std::string>("mode");
+        pull_port        = pt.get<std::uint16_t>("pull_port");
+        push_gateway_url = pt.get<std::string>("push_gateway_url");
+        job              = pt.get<std::string>("job");
+    } catch (std::exception e) {
+        std::cout << R_Prometheus << "error on load config " << configPath << " " << e.what() << std::endl;
+    }
 }
 
 PrometheusExporter::~PrometheusExporter() { MetricsModel::instance()->unregisterUploader(this); }
