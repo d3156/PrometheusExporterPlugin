@@ -1,0 +1,33 @@
+FROM ubuntu:24.04
+
+# Устанавливаем зависимости
+RUN apt-get update && apt-get install -y \
+    wget curl jq libboost-system-dev libboost-filesystem-dev \
+    libboost-program-options-dev libboost-thread-dev libboost-chrono-dev \
+    libboost-date-time-dev libboost-atomic-dev libboost-json-dev \
+    openssl ca-certificates libcap2-bin \
+    && rm -rf /var/lib/apt/lists/*
+
+# Рабочая директория
+WORKDIR /app
+
+# Скачиваем PluginLoader, даём CAP_NET_RAW сразу после скачивания
+RUN LATEST_VERSION=$(curl -s https://api.github.com/repos/d3156/PluginCore/releases/latest | jq -r .tag_name) \
+    && if [ -z "$LATEST_VERSION" ]; then echo "Failed to get latest version" && exit 1; fi \
+    && echo "Latest version: $LATEST_VERSION" \
+    && wget -O PluginLoader "https://github.com/d3156/PluginCore/releases/download/${LATEST_VERSION}/PluginLoader_${LATEST_VERSION}" \
+    && chmod +x PluginLoader \
+    && setcap cap_net_raw+ep PluginLoader
+
+# Создаем директории
+RUN mkdir -p configs Plugins
+
+# Создаем непривилегированного пользователя
+RUN useradd -m appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Экспортируем порт
+EXPOSE 8000
+
+# Запуск приложения
+CMD ["./PluginLoader"]
