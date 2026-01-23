@@ -4,27 +4,28 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
-    network_mode: "host"  # доступ к localhost
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
-      - "9090:9090"
+      - "41254:9090"
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
-    network_mode: "host"
     ports:
-      - "3000:3000"
+      - "13000:3000"
     environment:
+      GF_SERVER_ROOT_URL: http://localhost:13000/
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_INSTALL_PLUGINS: grafana-piechart-panel  
     volumes:
+      - grafana_data:/var/lib/grafana
       - ./provisioning:/etc/grafana/provisioning
-      - ./dashboars:/var/lib/grafana/dashboards
+      - ./dashboards:/var/lib/grafana/dashboards
     depends_on:
       - prometheus
 
@@ -48,3 +49,5 @@ services:
         timeout: 10s
         retries: 3
         start_period: 40s
+volumes:
+  grafana_data:
