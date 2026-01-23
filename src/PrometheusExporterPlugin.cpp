@@ -31,7 +31,7 @@ void PrometheusExporter::upload(std::set<Metrics::Metric *> &statistics)
         data += "} " + std::to_string(metric->value_) + "\n";
         metrics_cache += data;
     }
-    if (pusher) pusher->send("/metrics/job/" + job, metrics_cache);
+    if (pusher) pusher->post("", metrics_cache);
 }
 
 void PrometheusExporter::postInit()
@@ -47,6 +47,7 @@ void PrometheusExporter::postInit()
     }
     if (mode == "push") {
         pusher = std::make_unique<d3156::EasyHttpClient>(*io, push_gateway_url);
+        pusher->setBasePath("/metrics/job/" + job);
         std::cout << G_Prometheus << "run " << mode << " mode\n";
         return;
     }
