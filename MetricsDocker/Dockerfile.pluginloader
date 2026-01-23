@@ -29,5 +29,3 @@ USER appuser
 # Экспортируем порт
 EXPOSE 8000
 
-# Запуск приложения
-CMD ["./PluginLoader"]

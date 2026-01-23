@@ -21,6 +21,10 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-piechart-panel  
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./dashboars:/var/lib/grafana/dashboards
     depends_on:
       - prometheus
 
@@ -37,3 +41,10 @@ services:
       - ./Plugins:/app/Plugins
     restart: unless-stopped
     user: root
+    command: ["./PluginLoader"] 
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:8000/metrics", "||", "exit", "1"]
+        interval: 30s
+        timeout: 10s
+        retries: 3
+        start_period: 40s
