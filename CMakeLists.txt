@@ -4,7 +4,6 @@ project(PrometheusExporterPlugin
 LANGUAGES CXX
 )
 
-add_compile_definitions(LOG_NAME="Prometheus")
 add_compile_definitions(PROMETHEUS_EXPORTER_VERSION="${PROJECT_VERSION}" )
 
 set(CMAKE_CXX_STANDARD 20)
@@ -19,6 +18,7 @@ file(GLOB_RECURSE SRC_FILES
 )
 
 add_library(PrometheusExporterPlugin SHARED ${SRC_FILES})
+target_compile_definitions(PrometheusExporterPlugin PRIVATE $<$<COMPILE_LANGUAGE:CXX>:LOG_NAME="Prometheus">)
 
 target_include_directories(PrometheusExporterPlugin
   PRIVATE
