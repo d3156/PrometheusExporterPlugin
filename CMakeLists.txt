@@ -4,6 +4,7 @@ project(PrometheusExporterPlugin
 LANGUAGES CXX
 )
 
+add_compile_definitions(LOG_NAME="Prometheus")
 add_compile_definitions(PROMETHEUS_EXPORTER_VERSION="${PROJECT_VERSION}" )
 
 set(CMAKE_CXX_STANDARD 20)

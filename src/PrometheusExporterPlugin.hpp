@@ -12,11 +12,6 @@
 #include <memory>
 #include <string>
 
-#define Y_Prometheus "\033[33m[PrometheusExporter]\033[0m "
-#define R_Prometheus "\033[31m[PrometheusExporter]\033[0m "
-#define G_Prometheus "\033[32m[PrometheusExporter]\033[0m "
-#define W_Prometheus "[PrometheusExporter] "
-
 class PrometheusExporter final : public d3156::PluginCore::IPlugin, public Metrics::Uploader
 {
     std::string configPath       = "./configs/PrometheusExporter.json";

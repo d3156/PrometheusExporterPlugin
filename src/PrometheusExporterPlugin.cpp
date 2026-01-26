@@ -1,5 +1,6 @@
 #include "PrometheusExporterPlugin.hpp"
 #include "Metrics.hpp"
+#include <Logger/Log.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <filesystem>
@@ -38,20 +39,23 @@ void PrometheusExporter::postInit()
 {
     if (mode == "pull") {
         puller = std::make_unique<d3156::EasyWebServer>(*io, pull_port);
-        puller->addPath("/metrics",
-                        [this](const d3156::http::request<d3156::http::string_body> &req,
-                               const d3156::address &client_ip) { return std::make_pair(true, metrics_cache); });
-        std::cout << G_Prometheus << "run " << mode << " mode\n";
-        std::cout << G_Prometheus << "run EasyWebServer on http://127.0.0.1:" << pull_port << "/metrics\n";
+        puller->addPath("/metrics", [this](const d3156::http::request<d3156::http::string_body> &req,
+                                           const d3156::address &client_ip) {
+            LOG(5, "Recv req to mertics" << req);
+            LOG(5, "Answer with metrics:\n" << metrics_cache);
+            return std::make_pair(true, metrics_cache);
+        });
+        G_LOG(1, "run " << mode << " mode");
+        G_LOG(1, "run EasyWebServer on http://127.0.0.1:" << pull_port << "/metrics");
         return;
     }
     if (mode == "push") {
         pusher = std::make_unique<d3156::EasyHttpClient>(*io, push_gateway_url);
         pusher->setBasePath("/metrics/job/" + job);
-        std::cout << G_Prometheus << "run " << mode << " mode\n";
+        G_LOG(1, "run " << mode << " mode");
         return;
     }
-    std::cout << R_Prometheus << " unknown Prometheus mode " << mode << "\n";
+    R_LOG(1, " unknown Prometheus mode " << mode);
 }
 
 // ABI required by d3156::PluginCore::Core (dlsym uses exact names)
@@ -65,7 +69,7 @@ namespace fs = std::filesystem;
 void PrometheusExporter::parseSettings()
 {
     if (!fs::exists(configPath)) {
-        std::cout << Y_Prometheus << " Config file " << configPath << " not found. Creating default config...\n";
+        Y_LOG(1, "Config file " << configPath << " not found. Creating default config...");
 
         fs::create_directories(fs::path(configPath).parent_path());
 
@@ -77,7 +81,7 @@ void PrometheusExporter::parseSettings()
 
         boost::property_tree::write_json(configPath, pt);
 
-        std::cout << G_Prometheus << " Default config created at " << configPath << "\n";
+        G_LOG(1, " Default config created at " << configPath);
         return;
     }
     try {
@@ -89,7 +93,7 @@ void PrometheusExporter::parseSettings()
         push_gateway_url = pt.get<std::string>("push_gateway_url");
         job              = pt.get<std::string>("job");
     } catch (std::exception e) {
-        std::cout << R_Prometheus << "error on load config " << configPath << " " << e.what() << std::endl;
+        R_LOG(1, "error on load config " << configPath << " " << e.what());
     }
 }
 
