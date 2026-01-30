@@ -9,6 +9,7 @@
   "mode": "pull",
   "pull_port": 8000,
   "push_gateway_url": "http://pushgateway:9091",
-  "job": "MainJob"
+  "job": "MainJob",
+  "ignore_imported": true
 }
 ```

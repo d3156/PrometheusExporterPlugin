@@ -20,7 +20,7 @@ class PrometheusExporter final : public d3156::PluginCore::IPlugin, public Metri
     std::string push_gateway_url = "http://pushgateway:9091";
     std::string job              = "MainJob";
     std::string metrics_cache    = "";
-
+    bool ignore_imported = true;
     std::unique_ptr<d3156::EasyHttpClient> pusher;
     std::unique_ptr<d3156::EasyWebServer> puller;
 

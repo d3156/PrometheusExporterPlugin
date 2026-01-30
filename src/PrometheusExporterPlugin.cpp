@@ -24,6 +24,7 @@ void PrometheusExporter::upload(std::set<Metrics::Metric *> &statistics)
 {
     metrics_cache = "";
     for (auto metric : statistics) {
+        if (ignore_imported && metric->imported) continue;
         std::string data = metric->name + "{";
         for (int i = 0; i < metric->tags.size(); ++i) {
             if (i != 0) data += ",";
@@ -78,6 +79,7 @@ void PrometheusExporter::parseSettings()
         pt.put("pull_port", pull_port);
         pt.put("push_gateway_url", push_gateway_url);
         pt.put("job", job);
+        pt.put("ignore_imported", ignore_imported);
 
         boost::property_tree::write_json(configPath, pt);
 
@@ -88,10 +90,11 @@ void PrometheusExporter::parseSettings()
         ptree pt;
         read_json(configPath, pt);
 
-        mode             = pt.get<std::string>("mode");
-        pull_port        = pt.get<std::uint16_t>("pull_port");
-        push_gateway_url = pt.get<std::string>("push_gateway_url");
-        job              = pt.get<std::string>("job");
+        mode             = pt.get<std::string>("mode", "pull");
+        pull_port        = pt.get<std::uint16_t>("pull_port", pull_port);
+        push_gateway_url = pt.get<std::string>("push_gateway_url", push_gateway_url);
+        job              = pt.get<std::string>("job", job);
+        ignore_imported  = pt.get<bool>("ignore_imported", true);
     } catch (std::exception e) {
         R_LOG(1, "error on load config " << configPath << " " << e.what());
     }
