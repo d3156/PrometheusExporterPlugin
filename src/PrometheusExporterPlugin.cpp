@@ -1,5 +1,4 @@
 #include "PrometheusExporterPlugin.hpp"
-#include "Metrics.hpp"
 #include <Logger/Log.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -9,7 +8,7 @@
 
 void PrometheusExporter::registerArgs(d3156::Args::Builder &bldr)
 {
-    bldr.setVersion("PrometheusExporter " + std::string(PROMETHEUS_EXPORTER_VERSION))
+    bldr.setVersion("PrometheusExporter " + std::string(PrometheusExporterPlugin_VERSION))
         .addOption(configPath, "PrometheusPath", "path to config for PrometheusExporter.json");
 }
 

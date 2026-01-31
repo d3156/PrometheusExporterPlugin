@@ -6,3 +6,4 @@ _CPack_Packages
 */build
 MetricsDocker/Plugins/*
 MetricsDocker/configs/*
+build-debug

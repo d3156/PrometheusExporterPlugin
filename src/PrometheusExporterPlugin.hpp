@@ -1,13 +1,14 @@
 #pragma once
-#include "Metrics.hpp"
+
 #include <PluginCore/IPlugin.hpp>
 #include <PluginCore/IModel.hpp>
 
-#include <MetricsModel.hpp>
-#include <MetricUploader.hpp>
+#include <MetricsModel/Metrics>
+#include <MetricsModel/MetricsModel>
+#include <MetricsModel/MetricUploader>
 
-#include <EasyHttpClient.hpp>
-#include <EasyWebServer.hpp>
+#include <EasyHttpLib/EasyHttpClient>
+#include <EasyHttpLib/EasyWebServer>
 
 #include <memory>
 #include <string>
