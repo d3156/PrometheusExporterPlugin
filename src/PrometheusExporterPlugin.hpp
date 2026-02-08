@@ -7,7 +7,7 @@
 #include <MetricsModel/MetricsModel>
 #include <MetricsModel/MetricUploader>
 
-#include <EasyHttpLib/EasyHttpClient>
+#include <EasyHttpLib/AsyncHttpClient>
 #include <EasyHttpLib/EasyWebServer>
 
 #include <memory>
@@ -22,7 +22,7 @@ class PrometheusExporter final : public d3156::PluginCore::IPlugin, public Metri
     std::string job              = "MainJob";
     std::string metrics_cache    = "";
     bool ignore_imported         = true;
-    std::unique_ptr<d3156::EasyHttpClient> pusher;
+    std::unique_ptr<d3156::AsyncHttpClient> pusher;
     std::unique_ptr<d3156::EasyWebServer> puller;
 
 public:

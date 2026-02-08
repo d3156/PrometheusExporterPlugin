@@ -31,7 +31,7 @@ void PrometheusExporter::upload(std::set<Metrics::Metric *> &statistics)
         data += "} " + std::to_string(metric->value_) + "\n";
         metrics_cache += data;
     }
-    if (pusher) pusher->post("", metrics_cache);
+    if (pusher) net::co_spawn(*io, pusher->postAsync("/api/fireforget", metrics_cache), net::detached);
 }
 
 void PrometheusExporter::postInit()
@@ -49,7 +49,7 @@ void PrometheusExporter::postInit()
         return;
     }
     if (mode == "push") {
-        pusher = std::make_unique<d3156::EasyHttpClient>(*io, push_gateway_url);
+        pusher = std::make_unique<d3156::AsyncHttpClient>(*io, push_gateway_url);
         pusher->setBasePath("/metrics/job/" + job);
         G_LOG(1, "run " << mode << " mode");
         return;
