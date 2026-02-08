@@ -8,13 +8,12 @@
 
 void PrometheusExporter::registerArgs(d3156::Args::Builder &bldr)
 {
-    bldr.setVersion("PrometheusExporter " + std::string(PrometheusExporterPlugin_VERSION))
-        .addOption(configPath, "PrometheusPath", "path to config for PrometheusExporter.json");
+    bldr.setVersion(FULL_NAME).addOption(configPath, "PrometheusPath", "path to config for PrometheusExporter.json");
 }
 
 void PrometheusExporter::registerModels(d3156::PluginCore::ModelsStorage &models)
 {
-    MetricsModel::instance() = RegisterModel("MetricsModel", new MetricsModel(), MetricsModel);
+    MetricsModel::instance() = models.registerModel<MetricsModel>();
     MetricsModel::instance()->registerUploader(this);
     parseSettings();
 }
