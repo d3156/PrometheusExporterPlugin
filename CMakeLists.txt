@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(PrometheusExporterPlugin VERSION 1.0.2 LANGUAGES CXX)
+project(PrometheusExporterPlugin VERSION 1.1.1 LANGUAGES CXX)
 include("${CMAKE_CURRENT_SOURCE_DIR}/../../tools/workspace.cmake")
 create_target(plugin)
 
