@@ -1,5 +1,5 @@
 #include "PrometheusExporterPlugin.hpp"
-#include <Logger/Log.hpp>
+#include <PluginCore/Logger/Log>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <filesystem>
