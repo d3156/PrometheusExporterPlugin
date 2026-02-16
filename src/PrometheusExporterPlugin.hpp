@@ -1,27 +1,27 @@
 #pragma once
 
 #include <PluginCore/IPlugin>
-#include <PluginCore/IModel>
 
 #include <MetricsModel/Metrics>
 #include <MetricsModel/MetricsModel>
-#include <MetricsModel/MetricUploader>
 
 #include <EasyHttpLib/AsyncHttpClient>
 #include <EasyHttpLib/EasyWebServer>
 
-#include <memory>
-#include <string>
+#include <BaseConfig>
 
 class PrometheusExporter final : public d3156::PluginCore::IPlugin, public Metrics::Uploader
 {
-    std::string configPath       = "./configs/PrometheusExporter.json";
-    std::string mode             = "pull"; // "pull" или "push"
-    std::uint16_t pull_port      = 8000;   // порт по умолчанию
-    std::string push_gateway_url = "http://pushgateway:9091";
-    std::string job              = "MainJob";
-    std::string metrics_cache    = "";
-    bool ignore_imported         = true;
+    struct PrometheusExporterConfig : d3156::Config {
+        PrometheusExporterConfig() : d3156::Config("") {}
+        CONFIG_ENUM(mode, "pull", "pull|push");
+        CONFIG_UINT(pull_port, 8000); // порт по умолчанию
+        CONFIG_STRING(push_gateway_url, "http://pushgateway:9091");
+        CONFIG_STRING(job, "MainJob");
+        CONFIG_BOOL(ignore_imported, true);
+    } conf;
+
+    std::string metrics_cache = "";
     std::unique_ptr<d3156::AsyncHttpClient> pusher;
     std::unique_ptr<d3156::EasyWebServer> puller;
 
@@ -35,7 +35,5 @@ public:
     void upload(std::set<Metrics::Metric *> &statistics) override;
 
 private:
-    void parseSettings();
-
     virtual ~PrometheusExporter();
 };

@@ -5,6 +5,7 @@ create_target(plugin)
 
 dependency("../EasyHttpLib" EasyHttpLib)
 dependency("../MetricsModel" MetricsModel)
+dependency("../PluginConfigurator/ConfiguratorModel" ConfiguratorModel)
 
 find_package(Boost 1.8 REQUIRED COMPONENTS json thread system)
 target_link_libraries(PrometheusExporterPlugin PRIVATE Boost::system Boost::thread Boost::json)
