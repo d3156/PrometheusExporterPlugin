@@ -3,9 +3,9 @@ project(PrometheusExporterPlugin VERSION 1.1.1 LANGUAGES CXX)
 include("${CMAKE_CURRENT_SOURCE_DIR}/../../tools/workspace.cmake")
 create_target(plugin)
 
-dependency("../EasyHttpLib" EasyHttpLib)
-dependency("../MetricsModel" MetricsModel)
-dependency("../PluginConfigurator/ConfiguratorModel" ConfiguratorModel)
+dependency(".." EasyHttpLib "https://gitlab.bubki.zip/d3156/EasyHttpLib.git")
+dependency(".." MetricsModel "https://gitlab.bubki.zip/d3156/MetricsModel.git")
+dependency(".." ConfiguratorModel "https://gitlab.bubki.zip/d3156/PluginConfigurator")
 
 find_package(Boost 1.8 REQUIRED COMPONENTS json thread system)
 target_link_libraries(PrometheusExporterPlugin PRIVATE Boost::system Boost::thread Boost::json)
