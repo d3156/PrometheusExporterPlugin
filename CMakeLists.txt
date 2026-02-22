@@ -7,8 +7,8 @@ dependency(".." EasyHttpLib "https://gitlab.bubki.zip/d3156/EasyHttpLib.git")
 dependency(".." MetricsModel "https://gitlab.bubki.zip/d3156/MetricsModel.git")
 dependency(".." ConfiguratorModel "https://gitlab.bubki.zip/d3156/PluginConfigurator")
 
-find_package(Boost 1.8 REQUIRED COMPONENTS json thread system)
-target_link_libraries(PrometheusExporterPlugin PRIVATE Boost::system Boost::thread Boost::json)
+find_package(Boost 1.8 REQUIRED COMPONENTS json thread system url)
+target_link_libraries(PrometheusExporterPlugin PRIVATE Boost::system Boost::thread Boost::json Boost::url)
 
 find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
 target_link_libraries(PrometheusExporterPlugin PUBLIC OpenSSL::SSL OpenSSL::Crypto)
